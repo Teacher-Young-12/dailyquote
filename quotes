@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>Daily English Quote</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin:0; padding:20px;
+      display:flex; justify-content:center; align-items:center;
+      min-height:100vh; background:#f5f5f5;
+    }
+    .box {
+      background:#fff; padding:2rem; border-radius:8px;
+      box-shadow:0 2px 8px rgba(0,0,0,0.1);
+      max-width:600px; width:90%; text-align:center;
+    }
+    .quote { font-size:1.3rem; }
+    .author { margin-top:0.5rem; font-style:italic; color:#333; }
+    .trans { margin-top:1rem; color:#555; font-size:1.1rem; }
+  </style>
+</head>
+<body>
+  <div class="box">
+    <div class="quote" id="quote">Loading...</div>
+    <div class="author" id="author"></div>
+    <div class="trans" id="translation">...</div>
+  </div>
+
+  <script>
+    async function fetchQuote(){
+      try {
+        const res = await fetch('https://api.quotable.io/random');
+        const data = await res.json();
+        const text = data.content;
+        const author = data.author;
+
+        document.getElementById('quote').innerText = `"${text}"`;
+        document.getElementById('author').innerText = `– ${author}`;
+        document.getElementById('translation').innerText = await mockTranslate(text);
+
+      } catch(e) {
+        document.getElementById('quote').innerText = 'Error loading quote.';
+        document.getElementById('translation').innerText = '';
+        console.error(e);
+      }
+    }
+
+    function scheduleMidnight(){
+      const now = new Date();
+      const msToMid = new Date(now.getFullYear(), now.getMonth(), now.getDate()+1) - now;
+      setTimeout(()=>{
+        fetchQuote();
+        setInterval(fetchQuote, 24*60*60*1000);
+      }, msToMid);
+    }
+
+    async function mockTranslate(text){
+      return text + " (여기에 한국어 번역 표시)";
+    }
+
+    fetchQuote();
+    scheduleMidnight();
+  </script>
+</body>
+</html>
