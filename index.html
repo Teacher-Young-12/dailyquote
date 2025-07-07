@@ -2,21 +2,16 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <title>Daily English Quote</title>
+  <title>오늘의 영어 명언</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin:0; padding:20px;
+    body { font-family: Arial, sans-serif; margin:0; padding:20px;
       display:flex; justify-content:center; align-items:center;
-      min-height:100vh; background:#f5f5f5;
-    }
-    .box {
-      background:#fff; padding:2rem; border-radius:8px;
-      box-shadow:0 2px 8px rgba(0,0,0,0.1);
-      max-width:600px; width:90%; text-align:center;
-    }
-    .quote { font-size:1.3rem; }
+      min-height:100vh; background:#f5f5f5; }
+    .box { background:#fff; padding:2rem; border-radius:12px;
+      box-shadow:0 2px 12px rgba(0,0,0,0.1);
+      max-width:600px; width:100%; text-align:center; }
+    .quote { font-size:1.3rem; font-weight:bold; }
     .author { margin-top:0.5rem; font-style:italic; color:#333; }
     .trans { margin-top:1rem; color:#555; font-size:1.1rem; }
   </style>
@@ -25,43 +20,53 @@
   <div class="box">
     <div class="quote" id="quote">Loading...</div>
     <div class="author" id="author"></div>
-    <div class="trans" id="translation">...</div>
+    <div class="trans" id="translation"></div>
   </div>
 
   <script>
-    async function fetchQuote(){
-      try {
-        const res = await fetch('https://api.quotable.io/random');
-        const data = await res.json();
-        const text = data.content;
-        const author = data.author;
+    const quotes = [
+      {text:"Tough times don’t last. Tough people do.", author:"Robert H. Schuller", translation:"힘든 시간은 오래가지 않는다. 강한 사람은 오래간다."},
+      {text:"It does not matter how slowly you go as long as you do not stop.", author:"Confucius", translation:"멈추지 않는 한 얼마나 천천히 가는지는 중요하지 않다."},
+      {text:"Everything you’ve ever wanted is on the other side of fear.", author:"George Addair", translation:"당신이 간절히 원하던 모든 것은 두려움 너머에 있다."},
+      {text:"Pain is temporary. Quitting lasts forever.", author:"Lance Armstrong", translation:"고통은 일시적이다. 포기는 영원하다."},
+      {text:"A problem is a chance for you to do your best.", author:"Duke Ellington", translation:"문제는 당신이 최선을 다할 수 있는 기회다."},
+      {text:"If life were predictable, it would cease to be life and be without flavor.", author:"Eleanor Roosevelt", translation:"삶이 예측 가능하다면 더 이상 삶이 아니며, 맛도 없을 것이다."},
+      {text:"Life is 10% what happens to me and 90% how I react.", author:"Charles Swindoll", translation:"삶은 10%는 일이 일어나고, 90%는 그것에 어떻게 반응하는가에 달려 있다."},
+      {text:"In the end, it's not the years in your life that count. It's the life in your years.", author:"Abraham Lincoln", translation:"결국 중요한 것은 인생의 '년수'가 아니라 '년수 속의 삶'이다."},
+      {text:"You will face many defeats in life, but never let yourself be defeated.", author:"Maya Angelou", translation:"인생에서 많은 패배를 맞이하겠지만, 자신이 패배자가 되게 해서는 안 된다."},
+      {text:"The only impossible journey is the one you never begin.", author:"Tony Robbins", translation:"불가능한 여정은 시작조차 하지 않은 것이다."},
+      {text:"The greatest glory in living lies not in never falling, but in rising every time we fall.", author:"Nelson Mandela", translation:"삶의 가장 큰 영광은 넘어지지 않음이 아니라, 넘어질 때마다 다시 일어서는 데 있다."},
+      {text:"Life is what happens when you're busy making other plans.", author:"John Lennon", translation:"인생은 당신이 다른 계획을 세우느라 바쁠 때 일어난다."},
+      {text:"You only live once, but if you do it right, once is enough.", author:"Mae West", translation:"인생은 한 번뿐이지만, 제대로 살면 그 한 번으로 충분하다."},
+      {text:"Go confidently in the direction of your dreams! Live the life you've imagined.", author:"Henry David Thoreau", translation:"당신의 꿈이 있는 방향으로 자신 있게 걸어가라! 상상한 삶을 살아라."},
+      {text:"Pain is temporary. Quitting lasts forever.", author:"Lance Armstrong", translation:"고통은 일시적이다. 포기는 영원하다."},
+      {text:"You are never too old to set another goal or to dream a new dream.", author:"C.S. Lewis", translation:"새로운 목표를 세우거나 새로운 꿈을 꾸기에 너무 늙은 나이는 없다."},
+      {text:"Always keep your eyes open. Keep watching. Because whatever you see can inspire you.", author:"Grace Coddington", translation:"항상 눈을 뜨고 지켜라. 당신이 보는 모든 것이 당신에게 영감을 줄 수 있다."},
+      {text:"If life were predictable, it would cease to be life and be without flavor.", author:"Eleanor Roosevelt", translation:"삶이 예측 가능하다면 더 이상 삶이 아니며, 맛도 없을 것이다."},
+      {text:"It does not matter how slowly you go as long as you do not stop.", author:"Confucius", translation:"멈추지 않는 한 얼마나 천천히 가는지는 중요하지 않다."},
+      {text:"The only thing we have to fear is fear itself.", author:"Franklin D. Roosevelt", translation:"우리가 두려워해야 할 유일한 것은 두려움 그 자체다."},
+      {text:"The future belongs to those who believe in the beauty of their dreams.", author:"Eleanor Roosevelt", translation:"미래는 자신의 꿈의 아름다움을 믿는 사람들의 것이다."},
+      {text:"Be yourself; everyone else is already taken.", author:"Oscar Wilde", translation:"그냥 당신답게 살아라; 이미 다른 사람들은 모두 존재한다."},
+      {text:"We are what we repeatedly do. Excellence, then, is not an act, but a habit.", author:"Aristotle", translation:"우리는 반복적으로 하는 것의 결과물이다. 그러므로 탁월함은 행동이 아니라 습관이다."},
+      {text:"Believe you can and you're halfway there.", author:"Theodore Roosevelt", translation:"당신이 할 수 있다고 믿는다면, 이미 절반은 해낸 것이다."},
+      {text:"Success is going from failure to failure without losing your enthusiasm.", author:"Winston Churchill", translation:"성공이란 열정을 잃지 않고 실패에서 실패를 거듭하는 것이다."},
+      {text:"You don't need to see the whole staircase, just take the first step.", author:"Martin Luther King Jr.", translation:"전체 계단을 볼 필요 없다. 첫걸음만 내딛어라."},
+      {text:"Magic is believing in yourself. If you can make that happen, you can make anything happen.", author:"Johann Wolfgang von Goethe", translation:"마법은 자신을 믿는 것이다. 그것이 가능하다면 어떤 일도 가능해진다."},
+      {text:"It's hard to beat a person who never gives up.", author:"Babe Ruth", translation:"절대 포기하지 않는 사람을 이기기는 어렵다."},
+      {text:"Don't let the fear of striking out stop you from playing the game.", author:"Babe Ruth", translation:"탈락에 대한 두려움 때문에 경기를 하지 못하게 하지 마라."},
+      {text:"If you can do what you do best and be happy, you are further along in life than most people.", author:"Leonardo DiCaprio", translation:"당신이 가장 잘하는 일을 하고 행복할 수 있다면, 당신은 대부분의 사람들보다 인생에서 한 발 앞서 있다."}
+    ];
 
-        document.getElementById('quote').innerText = `"${text}"`;
-        document.getElementById('author').innerText = `– ${author}`;
-        document.getElementById('translation').innerText = await mockTranslate(text);
-
-      } catch(e) {
-        document.getElementById('quote').innerText = 'Error loading quote.';
-        document.getElementById('translation').innerText = '';
-        console.error(e);
-      }
+    function showQuote() {
+      const today = new Date();
+      const index = today.getDate() % quotes.length;
+      const q = quotes[index];
+      document.getElementById("quote").innerText = `"${q.text}"`;
+      document.getElementById("author").innerText = `– ${q.author}`;
+      document.getElementById("translation").innerText = q.translation;
     }
 
-    function scheduleMidnight(){
-      const now = new Date();
-      const msToMid = new Date(now.getFullYear(), now.getMonth(), now.getDate()+1) - now;
-      setTimeout(()=>{
-        fetchQuote();
-        setInterval(fetchQuote, 24*60*60*1000);
-      }, msToMid);
-    }
-
-    async function mockTranslate(text){
-      return text + " (여기에 한국어 번역 표시)";
-    }
-
-    fetchQuote();
-    scheduleMidnight();
+    showQuote();
   </script>
 </body>
 </html>
